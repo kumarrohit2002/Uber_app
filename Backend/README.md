@@ -271,3 +271,162 @@ Logs out the user by clearing the authentication token from cookies and adding i
 ### **Notes:**
 - Blacklisted tokens automatically expire after 24 hours.
 - Ensure the JWT token is sent in the `Authorization` header or `token` cookie for authentication and logout.
+---
+
+
+
+
+## **Register Captain API**
+
+### Endpoint Documentation: **`/captain/register`**
+
+#### **Description**:
+This endpoint allows new captains to register by providing their personal details, vehicle information, and password. Upon successful registration, a JWT token is generated and returned along with the captain's information.
+
+---
+
+### **HTTP Method**:
+`POST`
+
+---
+
+### **URL**:
+`/captain/register`
+
+---
+
+### **Request Headers**:
+| Header Name      | Type   | Description              |
+|------------------|--------|--------------------------|
+| `Content-Type`   | String | Must be `application/json`. |
+
+---
+
+### **Request Body**:
+The request body must be in JSON format with the following fields:
+
+#### **Schema**:
+```json
+{
+    "fullname": {
+        "firstname": "string (minLength: 3, required)",
+        "lastname": "string (minLength: 3)"
+    },
+    "email": "string (valid email format, required)",
+    "password": "string (minLength: 6, required)",
+    "vehicle": {
+        "color": "string (minLength: 3, required)",
+        "plate": "string (minLength: 3, required)",
+        "capacity": "integer (min: 1, required)",
+        "vehicleType": "enum: ['car', 'motorcycle', 'auto'] (required)"
+    }
+}
+```
+
+#### **Example**:
+```json
+{
+    "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+    },
+    "email": "john.doe@example.com",
+    "password": "securePassword123",
+    "vehicle": {
+        "color": "Blue",
+        "plate": "AB1234",
+        "capacity": 4,
+        "vehicleType": "car"
+    }
+}
+```
+
+---
+
+### **Response**:
+
+#### **Success (201)**:
+If the registration is successful, the API responds with a JWT token and the captain's information.
+
+##### **Example**:
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "captain": {
+        "_id": "64fbcbf0c4e88f3d6c1e2e5e",
+        "fullname": {
+            "firstname": "John",
+            "lastname": "Doe"
+        },
+        "email": "john.doe@example.com",
+        "vehicle": {
+            "color": "Blue",
+            "plate": "AB1234",
+            "capacity": 4,
+            "vehicleType": "car"
+        },
+        "status": "inactive"
+    }
+}
+```
+
+---
+
+#### **Error Responses**:
+
+1. **Validation Error (400)**:
+   - **Reason**: The input data did not pass validation checks.
+   - **Example**:
+     ```json
+     {
+         "errors": [
+             { "msg": "First name must be at least 3 characters", "param": "fullname.firstname", "location": "body" },
+             { "msg": "Invalid Email", "param": "email", "location": "body" }
+         ]
+     }
+     ```
+
+2. **Email Already Registered (409)**:
+   - **Reason**: The email is already associated with an existing captain.
+   - **Example**:
+     ```json
+     {
+         "message": "Email Already Registered",
+         "success": false
+     }
+     ```
+
+3. **Server Error (500)**:
+   - **Reason**: An internal server error occurred.
+   - **Example**:
+     ```json
+     {
+         "message": "Internal Server Error",
+         "success": false
+     }
+     ```
+
+---
+
+### **Validation Rules**:
+- **Email**: Must be a valid email format.
+- **First Name**: Minimum of 3 characters.
+- **Password**: Minimum of 6 characters.
+- **Vehicle Color**: Minimum of 3 characters.
+- **Vehicle Plate**: Minimum of 3 characters.
+- **Vehicle Capacity**: Must be an integer greater than or equal to 1.
+- **Vehicle Type**: Must be one of `['car', 'motorcycle', 'auto']`.
+
+---
+
+### **Implementation Notes**:
+- **Security**: Ensure the `JWT_SECRET` environment variable is set securely.
+- **Password Hashing**: Passwords are hashed before being stored in the database.
+- **Token Expiry**: Tokens are valid for 24 hours.
+
+---
+
+### **Developer Tips**:
+- Test validation rules thoroughly using invalid input.
+- Ensure email uniqueness by properly indexing the `email` field in the database.
+- Handle potential duplicate requests gracefully to prevent duplicate captain entries.
