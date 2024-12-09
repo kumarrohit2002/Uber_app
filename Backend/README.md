@@ -574,3 +574,133 @@ If the login is successful, the API responds with a JWT token, sets the token in
 - Handle expired tokens gracefully in subsequent requests.
 ---
 
+## Endpoint Documentation: **`/captain/profile`**
+
+#### **Description**:
+This endpoint allows an authenticated captain to retrieve their profile details. The captain's authentication is verified using a JWT token.
+
+---
+
+### **HTTP Method**:
+`GET`
+
+---
+
+### **URL**:
+`/captain/profile`
+
+---
+
+### **Authentication**:
+This endpoint requires a valid JWT token. The token can be passed in one of the following ways:
+1. **Cookie**: A cookie named `token`.
+2. **Authorization Header**: A bearer token in the `Authorization` header (`Bearer <token>`).
+
+---
+
+### **Request Headers**:
+| Header Name          | Type   | Description                                         |
+|----------------------|--------|-----------------------------------------------------|
+| `Authorization`      | String | `Bearer <JWT Token>` (optional if token is in a cookie). |
+| `Content-Type`       | String | Must be `application/json`.                        |
+
+---
+
+### **Request Parameters**:
+None
+
+---
+
+### **Response**:
+
+#### **Success (200)**:
+If the request is authenticated, the server responds with the captain's profile information.
+
+##### **Example**:
+```json
+{
+    "captain": {
+        "_id": "64fbcbf0c4e88f3d6c1e2e5e",
+        "fullname": {
+            "firstname": "John",
+            "lastname": "Doe"
+        },
+        "email": "john.doe@example.com",
+        "vehicle": {
+            "color": "Blue",
+            "plate": "AB1234",
+            "capacity": 4,
+            "vehicleType": "car"
+        },
+        "status": "active"
+    },
+    "success": true
+}
+```
+
+---
+
+#### **Error Responses**:
+
+1. **Unauthorized (401)**:
+   - **Reason**: Token is missing, invalid, or blacklisted.
+   - **Example**:
+     ```json
+     {
+         "message": "Unauthorized"
+     }
+     ```
+
+2. **Server Error (500)**:
+   - **Reason**: An unexpected error occurred.
+   - **Example**:
+     ```json
+     {
+         "message": "Internal server error"
+     }
+     ```
+
+---
+
+### **Middleware**:
+- **`authCaptain`**:
+  - Extracts the token from the cookie or authorization header.
+  - Validates the token and checks if it has been blacklisted.
+  - Retrieves the captain's profile using the token's payload (`_id`).
+  - Attaches the captain's data to `req.captain`.
+
+---
+
+### **Validation**:
+- Token must be a valid JWT signed with the secret defined in `process.env.JWT_SECRET`.
+- Blacklisted tokens are rejected to prevent unauthorized access.
+
+---
+
+### **Developer Notes**:
+- Ensure the blacklist functionality (`blackListTokenModel`) is maintained to revoke tokens when required.
+- Use secure HTTP headers (`httpOnly`, `secure`, `sameSite`) for cookies in production.
+- Handle cases where the captain referenced in the token does not exist in the database.
+
+---
+
+### **Example Request**:
+
+#### **Using Cookies**:
+```bash
+curl -X GET http://localhost:5000/captain/profile \
+  --cookie "token=<your-jwt-token>"
+```
+
+#### **Using Authorization Header**:
+```bash
+curl -X GET http://localhost:5000/captain/profile \
+  -H "Authorization: Bearer <your-jwt-token>"
+```
+
+---
+
+### **Security**:
+- Tokens should be short-lived and refreshed as necessary.
+- Use HTTPS to protect tokens in transit.
+- Implement proper logging and monitoring to detect unauthorized access attempts.

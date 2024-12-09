@@ -72,3 +72,16 @@
         return res.status(500).json({message:'Internal server Error',success:false});
     }
  }
+
+
+
+ module.exports.getCaptainProfile=async (req,res,next)=>{
+    try{
+        const captain=req.captain;
+        return res.status(200).json({captain:captain,success:true});
+
+    }catch(error){
+        console.log(error.message);
+        return res.status(500).json({message:'Internal server error'});
+    }
+ }
