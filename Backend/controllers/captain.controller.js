@@ -1,4 +1,5 @@
- const captainModel=require('../models/captain.model');
+ const BlacklistToken = require('../models/blacklistToken.model');
+const captainModel=require('../models/captain.model');
  const captainService=require('../services/captain.service');
  const {validationResult}=require('express-validator');
 
@@ -83,5 +84,17 @@
     }catch(error){
         console.log(error.message);
         return res.status(500).json({message:'Internal server error'});
+    }
+ }
+
+
+
+ module.exports.logoutCaptain=async (req,res,next)=>{
+    try{
+        const token=req.cookies.token || req.headers.authorization?.split(' ')[1];
+        await BlacklistToken.create({token:token});
+        res.status(200).json({message:'Successfully logged out',success:true});
+    }catch(error){
+        return res.status(500).json({message:'Internal server Error'})
     }
  }

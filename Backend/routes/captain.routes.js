@@ -19,7 +19,9 @@ router.get('/login',[
     body('password').isLength({min:3}).withMessage('Password must be at least 6'),
 ],captainController.loginCaptain);
 
-    router.get('/profile',authMiddleware.authCaptain,captainController.getCaptainProfile);
+router.get('/profile',authMiddleware.authCaptain,captainController.getCaptainProfile);
+
+router.get('/logout',authMiddleware.authCaptain,captainController.logoutCaptain);
 
 
 

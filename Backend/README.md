@@ -704,3 +704,128 @@ curl -X GET http://localhost:5000/captain/profile \
 - Tokens should be short-lived and refreshed as necessary.
 - Use HTTPS to protect tokens in transit.
 - Implement proper logging and monitoring to detect unauthorized access attempts.
+
+
+## Endpoint Documentation: **`/captain/logout`**
+
+#### **Description**:
+This endpoint logs out an authenticated captain by blacklisting their JWT token. Once logged out, the token is no longer valid for future requests.
+
+---
+
+### **HTTP Method**:
+`GET`
+
+---
+
+### **URL**:
+`/captain/logout`
+
+---
+
+### **Authentication**:
+This endpoint requires a valid JWT token. The token can be passed in one of the following ways:
+1. **Cookie**: A cookie named `token`.
+2. **Authorization Header**: A bearer token in the `Authorization` header (`Bearer <token>`).
+
+---
+
+### **Request Headers**:
+| Header Name          | Type   | Description                                         |
+|----------------------|--------|-----------------------------------------------------|
+| `Authorization`      | String | `Bearer <JWT Token>` (optional if token is in a cookie). |
+| `Content-Type`       | String | Must be `application/json`.                        |
+
+---
+
+### **Request Parameters**:
+None
+
+---
+
+### **Response**:
+
+#### **Success (200)**:
+If the request is authenticated and the logout process is successful, the server responds with a success message.
+
+##### **Example**:
+```json
+{
+    "message": "Successfully logged out",
+    "success": true
+}
+```
+
+---
+
+#### **Error Responses**:
+
+1. **Unauthorized (401)**:
+   - **Reason**: Token is missing, invalid, or blacklisted.
+   - **Example**:
+     ```json
+     {
+         "message": "Unauthorized"
+     }
+     ```
+
+2. **Server Error (500)**:
+   - **Reason**: An unexpected error occurred while processing the request.
+   - **Example**:
+     ```json
+     {
+         "message": "Internal server Error"
+     }
+     ```
+
+---
+
+### **Middleware**:
+- **`authCaptain`**:
+  - Extracts the token from the cookie or authorization header.
+  - Validates the token and checks if it has been blacklisted.
+  - Verifies the token's authenticity and retrieves the captain's profile from the database.
+  - Attaches the captain's data to `req.captain`.
+
+---
+
+### **Process**:
+1. The endpoint authenticates the captain via the provided JWT token.
+2. The token is added to the `BlacklistToken` collection, preventing its future use.
+3. A success message is returned to indicate the logout was successful.
+
+---
+
+### **Validation**:
+- Token must be a valid JWT signed with the secret defined in `process.env.JWT_SECRET`.
+- Blacklisted tokens are rejected to prevent unauthorized access.
+
+---
+
+### **Example Request**:
+
+#### **Using Cookies**:
+```bash
+curl -X GET http://localhost:5000/captain/logout \
+  --cookie "token=<your-jwt-token>"
+```
+
+#### **Using Authorization Header**:
+```bash
+curl -X GET http://localhost:5000/captain/logout \
+  -H "Authorization: Bearer <your-jwt-token>"
+```
+
+---
+
+### **Developer Notes**:
+- Ensure the `BlacklistToken` model is implemented and properly indexed for efficient lookups.
+- Use secure cookies (`httpOnly`, `secure`, `sameSite`) to handle tokens in production environments.
+- Consider implementing token expiration checks to automatically invalidate old tokens.
+
+---
+
+### **Security**:
+- Use HTTPS to secure token transmission.
+- Regularly clean up the `BlacklistToken` collection to remove expired tokens.
+- Implement proper logging to monitor logout activities.
