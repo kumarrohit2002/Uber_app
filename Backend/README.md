@@ -430,3 +430,147 @@ If the registration is successful, the API responds with a JWT token and the cap
 - Test validation rules thoroughly using invalid input.
 - Ensure email uniqueness by properly indexing the `email` field in the database.
 - Handle potential duplicate requests gracefully to prevent duplicate captain entries.
+
+---
+
+
+## Endpoint Documentation: **`/captain/login`**
+
+#### **Description**:
+This endpoint allows captains to log in by providing their registered email and password. Upon successful login, a JWT token is generated and returned along with the captain's information. The token is also set in a cookie for subsequent requests.
+
+---
+
+### **HTTP Method**:
+`POST`
+
+---
+
+### **URL**:
+`/captain/login`
+
+---
+
+### **Request Headers**:
+| Header Name      | Type   | Description              |
+|------------------|--------|--------------------------|
+| `Content-Type`   | String | Must be `application/json`. |
+
+---
+
+### **Request Body**:
+The request body must be in JSON format with the following fields:
+
+#### **Schema**:
+```json
+{
+    "email": "string (valid email format, required)",
+    "password": "string (minLength: 6, required)"
+}
+```
+
+#### **Example**:
+```json
+{
+    "email": "john.doe@example.com",
+    "password": "securePassword123"
+}
+```
+
+---
+
+### **Response**:
+
+#### **Success (200)**:
+If the login is successful, the API responds with a JWT token, sets the token in a cookie, and returns the captain's information.
+
+##### **Example**:
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "captain": {
+        "_id": "64fbcbf0c4e88f3d6c1e2e5e",
+        "fullname": {
+            "firstname": "John",
+            "lastname": "Doe"
+        },
+        "email": "john.doe@example.com",
+        "vehicle": {
+            "color": "Blue",
+            "plate": "AB1234",
+            "capacity": 4,
+            "vehicleType": "car"
+        },
+        "status": "active"
+    }
+}
+```
+
+---
+
+#### **Error Responses**:
+
+1. **Validation Error (400)**:
+   - **Reason**: Input data did not pass validation checks.
+   - **Example**:
+     ```json
+     {
+         "errors": [
+             { "msg": "Invalid Email", "param": "email", "location": "body" },
+             { "msg": "Password must be at least 6", "param": "password", "location": "body" }
+         ],
+         "success": false
+     }
+     ```
+
+2. **User Not Found (404)**:
+   - **Reason**: No captain is registered with the provided email.
+   - **Example**:
+     ```json
+     {
+         "message": "User not found",
+         "success": false
+     }
+     ```
+
+3. **Invalid Credentials (401)**:
+   - **Reason**: The provided password does not match the stored password.
+   - **Example**:
+     ```json
+     {
+         "message": "Invalid email or password",
+         "success": false
+     }
+     ```
+
+4. **Server Error (500)**:
+   - **Reason**: An internal server error occurred.
+   - **Example**:
+     ```json
+     {
+         "message": "Internal server Error",
+         "success": false
+     }
+     ```
+
+---
+
+### **Validation Rules**:
+- **Email**: Must be a valid email format.
+- **Password**: Minimum of 6 characters.
+
+---
+
+### **Implementation Notes**:
+- **Password Verification**: Passwords are compared using `bcrypt.compare()` to ensure security.
+- **JWT Token**: The token is signed using a secret key defined in the environment variable `JWT_SECRET` and expires in 24 hours.
+- **Cookies**: The JWT token is set in a cookie named `token`.
+
+---
+
+### **Developer Tips**:
+- Ensure proper validation for both `email` and `password` to avoid invalid requests.
+- Use secure HTTP headers when sending cookies (`httpOnly`, `secure`, etc.).
+- Handle expired tokens gracefully in subsequent requests.
+---
+

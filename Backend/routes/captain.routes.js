@@ -13,6 +13,11 @@ router.post('/register',[
     body('vehicle.vehicleType').isIn(['car','motorcycle','auto']).withMessage('Invalid Vehicle Type')
 ],captainController.registerCaptain);
 
+router.get('/login',[
+    body('email').isEmail().withMessage('Invalid Email'),
+    body('password').isLength({min:3}).withMessage('Password must be at least 6'),
+],captainController.loginCaptain);
+
 
 
 module.exports=router;
