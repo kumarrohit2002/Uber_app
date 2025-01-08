@@ -1,14 +1,25 @@
-import { Link } from "react-router-dom";
-
 const Home = () => {
   return (
     <div>
-      <div className="bg-cover bg-center bg-[url(https://images.unsplash.com/photo-1674395364266-76316bbc82fa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fHRyYWZpYyUyMGxpZ2h0fGVufDB8fDB8fHww)] pt-8 h-screen flex flex-col justify-between w-full">
-        <img className="w-16 ml-8" src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="logo" />
-        <div className="bg-white pb-7 py-4 px-4">
-          <h2 className="text-[30px] font-bold">Get Started with Uber</h2>
-          <Link to='/login' className="flex items-center justify-center w-full bg-black text-white font-semibold py-3 rounded mt-5">Continue</Link>
+      <div>
+        <img className="w-16 absolute left-5 top-5" src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="logo" />
+      </div>
+      <div className="h-screen w-screen">
+        {/* temprori img */}
+        <img className="h-full w-full object-cover" src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="map" />
+      </div>
+      <div className="bg-white h-screen absolute w-full p-5">
+        <div className="h-[30%]">
+          <h4 className="text-2xl font-semibold">Find a Trip</h4>
+          <form>
+            <input className='bg-[#eee] px-12 py-2 text-base rounded-lg w-full mt-5' type="text" placeholder="Add a pick-up location"/>
+            <input className='bg-[#eee] px-12 py-2 text-base rounded-lg w-full mt-3'  type="text" placeholder="Enter your destination"/>
+          </form>
         </div>
+        <div className="h-[70%] bg-red-700">
+
+        </div>
+
       </div>
     </div>
   )
